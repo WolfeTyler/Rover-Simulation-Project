@@ -3,7 +3,7 @@ import cv2
 import time
 
 
-def navigable_thresh(img, rgb_thresh=(160, 160, 160)):
+def navigable_terrain_threshold(img, rgb_thresh=(160, 160, 160)):
 
     color_select = np.zeros_like(img[:,:,0])
     above_thresh = ((img[:,:,0] > rgb_thresh[0]) &
@@ -12,7 +12,7 @@ def navigable_thresh(img, rgb_thresh=(160, 160, 160)):
     color_select[above_thresh] = 1
     return color_select
 
-def obstacle_thresh(img, rgb_thresh=(160, 160, 160)):
+def obstacle_threshold(img, rgb_thresh=(160, 160, 160)):
 
     color_select = np.zeros_like(img[:,:,0])
     below_thresh = ((img[:,:,0] < rgb_thresh[0]) &
@@ -22,12 +22,13 @@ def obstacle_thresh(img, rgb_thresh=(160, 160, 160)):
     return color_select
 
 
-def rock_thresh(img):
+def sample_threshold(img):
 
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV, 3)
-    lower_yellow = np.array([20, 150, 100], dtype='uint8')
-    upper_yellow = np.array([50, 255, 255], dtype='uint8')
-    mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+    x_yellow = np.array([20, 150, 100], dtype='uint8')
+    y_yellow = np.array([50, 255, 255], dtype='uint8')
+    mask = cv2.inRange(hsv, x_yellow, y_yellow)
+    # Using inRange to find color presence https://stackoverflow.com/questions/43981903/using-inrange-in-opencv-to-detect-colors-in-a-range
     return mask 
 
 def rover_coords(binary_img):
@@ -84,9 +85,9 @@ def perception_step(Rover):
         [img.shape[1]/2 - dst_size, img.shape[0] - 2 * dst_size - bottom_offset]])
 
     warped = perspect_transform(img=img, src=src, dst=dst)
-    navigable = navigable_thresh(img=warped, rgb_thresh=(160, 160, 160)) 
-    obstacles = obstacle_thresh(img=warped, rgb_thresh=(140, 140, 140))
-    rock_samples = rock_thresh(img=warped)
+    navigable = navigable_terrain_threshold(img=warped, rgb_thresh=(160, 160, 160)) 
+    obstacles = obstacle_threshold(img=warped, rgb_thresh=(140, 140, 140))
+    rock_samples = sample_threshold(img=warped)
     Rover.vision_image[:,:,0] = obstacles * 255
     Rover.vision_image[:,:,1] = rock_samples * 255
     Rover.vision_image[:,:,2] = navigable * 255
@@ -130,6 +131,5 @@ def perception_step(Rover):
 
     if Rover.start_pos is None:
         Rover.start_pos = (Rover.pos[0], Rover.pos[1])
-        print('Start_Pos ', Rover.start_pos)
 
     return Rover

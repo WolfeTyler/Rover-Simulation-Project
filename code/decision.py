@@ -103,15 +103,4 @@ def decision_step(Rover):
     if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
         Rover.send_pickup = True
         Rover.sample_seen = False
-
-    # Return to start position when all samples found
-    if Rover.samples_found == 6:
-        print('Returning to start, all samples found')
-        if abs(Rover.pos[0] - Rover.start_pos[0]) < 20 and abs(Rover.pos[1] - Rover.start_pos[1]) < 20:
-            Rover.throttle = 0
-            Rover.brake = Rover.brake_set
-            Rover.steer = 0
-            print('Mission complete')
-            return Rover
-
     return Rover
