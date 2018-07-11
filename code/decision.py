@@ -86,20 +86,20 @@ def decision_step(Rover):
         Rover.steer = 0
         Rover.brake = 0
 
-    # Rover is stuck so try to get unstuck
+    # Rover is stuck 
     if Rover.mode == 'stuck':
         print('Stuck')
         if time.time() - Rover.stuck_time > (Rover.max_stuck + 1):
             Rover.mode = 'forward'
             Rover.stuck_time = time.time()
         else:
-            # Perform evasion to get unstuck
+            # Turn to get unstuck
             Rover.throttle = 0
             Rover.brake = 0
             Rover.steer = -15
         return Rover
 
-    # If in a state where want to pickup a rock send pickup command
+    # Send pickup command
     if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
         Rover.send_pickup = True
         Rover.sample_seen = False

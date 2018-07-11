@@ -16,76 +16,61 @@ import pickle
 import matplotlib.image as mpimg
 import time
 
-# Import functions for perception and decision making
+#Imports from project py files
 from perception import perception_step
 from decision import decision_step
 from supporting_functions import update_rover, create_output_images
-# Initialize socketio server and Flask application 
-# (learn more at: https://python-socketio.readthedocs.io/en/latest/)
+
+# Setup Flask app on socketio server
 sio = socketio.Server()
 app = Flask(__name__)
 
-# Read in ground truth map and create 3-channel green version for overplotting
-# NOTE: images are read in by default with the origin (0, 0) in the upper left
-# and y-axis increasing downward.
+# Start with ground truth map from calibration_images
 ground_truth = mpimg.imread('../calibration_images/map_bw.png')
-# This next line creates arrays of zeros in the red and blue channels
-# and puts the map into the green channel.  This is why the underlying 
-# map output looks green in the display image
 ground_truth_3d = np.dstack((ground_truth*0, ground_truth*255, ground_truth*0)).astype(np.float)
 
-# Define RoverState() class to retain rover state parameters
+# Def RoverState class
 class RoverState():
     def __init__(self):
-        self.start_time = None # To record the start time of navigation
-        self.total_time = None # To record total duration of naviagation
-        self.start_pos = None # Position (x, y) of the starting location
-        self.img = None # Current camera image
-        self.pos = None # Current position (x, y)
-        self.yaw = None # Current yaw angle
-        self.pitch = None # Current pitch angle
-        self.roll = None # Current roll angle
-        self.vel = None # Current velocity
-        self.steer = 0 # Current steering angle
-        self.throttle = 0 # Current throttle value
-        self.brake = 0 # Current brake value
-        self.nav_angles = [] # Angles of navigable terrain pixels
-        self.nav_dists = [] # Distances of navigable terrain pixels
-        self.ground_truth = ground_truth_3d # Ground truth worldmap
-        self.mode = 'forward' # Current mode (can be forward or stop)
-        self.throttle_set = 0.2 # Throttle setting when accelerating
-        self.brake_set = 5 # Brake setting when braking
-        # The stop_forward and go_forward fields below represent total count
-        # of navigable terrain pixels.  This is a very crude form of knowing
-        # when you can keep going and when you should stop.  Feel free to
-        # get creative in adding new fields or modifying these!
-        self.stop_forward = 40 # Threshold to initiate stopping
-        self.go_forward = 41 # Threshold to go forward again
-        self.max_vel = 2 # Maximum velocity (meters/second)
-        # Image output from perception step
-        # Update this image to display your intermediate analysis steps
-        # on screen in autonomous mode
+        self.start_time = None 
+        self.total_time = None 
+        self.start_pos = None 
+        self.img = None 
+        self.pos = None 
+        self.yaw = None
+        self.pitch = None 
+        self.roll = None 
+        self.vel = None 
+        self.steer = 0 
+        self.throttle = 0 
+        self.brake = 0 
+        self.nav_angles = [] 
+        self.nav_dists = [] 
+        self.ground_truth = ground_truth_3d
+        self.mode = 'forward' 
+        self.throttle_set = 0.2 
+        self.brake_set = 6 
+        self.stop_forward = 50 
+        self.go_forward = 51 
+        self.max_vel = 2
         self.vision_image = np.zeros((160, 320, 3), dtype=np.float) 
-        # Worldmap
-        # Update this image with the positions of navigable terrain
-        # obstacles and rock samples
         self.worldmap = np.zeros((200, 200, 3), dtype=np.float) 
-        self.samples_pos = None # To store the actual sample positions
-        self.samples_to_find = 0 # To store the initial count of samples
-        self.samples_found = 0 # To count the number of samples found
-        self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
-        self.sample_seen = False # If a sample is detected, change to True
-        self.sample_max_search = 30 # Max seconds allowed to get seen sample
-        self.sample_timer = time.time() # Time for when sample was first seen
-        self.rock_angle = [] # Tracks the angle to the sample
-        self.rock_dist = [] # Tracks the distance to the sample
-        self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
-        self.send_pickup = False # Set to True to trigger rock pickup
-        self.max_wheel_lock = 10 # Set max allowed sec wheels can be locked
-        self.wheel_lock = time.time() # Time the wheels are fully turned
-        self.max_stuck = 3 # Set max allowed sec for rover to not move
-        self.stuck_time = time.time() # Time with no velocity but throttle set
-# Initialize our rover 
+        self.samples_pos = None 
+        self.samples_to_find = 0 
+        self.samples_found = 0 
+        self.near_sample = 0 
+        self.sample_seen = False 
+        self.sample_max_search = 30 
+        self.sample_timer = time.time() 
+        self.rock_angle = [] 
+        self.rock_dist = [] 
+        self.picking_up = 0 
+        self.send_pickup = False 
+        self.max_wheel_lock = 10 
+        self.wheel_lock = time.time() 
+        self.max_stuck = 3 
+        self.stuck_time = time.time() 
+# Rover instance
 Rover = RoverState()
 
 # Variables to track frames per second (FPS)
