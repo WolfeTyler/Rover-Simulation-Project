@@ -1,5 +1,5 @@
 ## Project: Search and Sample Return
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+### Writeup for simulated NASA rover challenge using Unity, Python, and OpenCV
 
 ---
 
@@ -24,20 +24,17 @@
 
 [image1]: ./RecordRunTrial.png
 
-## [Rubric](https://review.udacity.com/#!/rubrics/916/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+## [Rubric](https://review.udacity.com/#!/rubrics/916/view) Points 
 
 ---
 ### Writeup / README
 
 #### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
 
-Here's the 1st pass writeup for this project submission.
+This is the prelim writeup for rover simulation project.
 
 ### Notebook Analysis
 #### 1. Run the functions provided in the notebook on test images (first with the test data provided, next on data you have recorded). Add/modify functions to allow for color selection of obstacles and rock samples.
-
-![alt text][image1]
 
 #### 1. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
 
@@ -55,8 +52,10 @@ The decision_step() code is updated to add the ability to handle a scenario wher
 
 **Note: running the simulator with different choices of resolution and graphics quality may produce different results, particularly on different machines!  Make a note of your simulator settings (resolution and graphics quality set on launch) and frames per second (FPS output to terminal by `drive_rover.py`) in your writeup when you submit the project so your reviewer can reproduce your results.**
 
-I have tested the Unity simulator environment with a 1024x768 screen resolution and good graphic quality as a point of reference.
-
 The code currently is consistently capable of mapping >80% of the explorable environment with >80% map fidelity and usually within 300 seconds can locate and retrieve 3-5 rock samples. I am continuing to adjust the decision criteria and variables as the rover has a difficult time finding the final rock sample once it has retrieved most of the other samples and cleared much of the explorable map. It frequently revisits areas where there either was no rock sample present or where it has already removed the rock sample.
+
+![alt text][image1]
+
+I have tested the Unity simulator environment with a 1024x768 screen resolution and good graphic quality as a point of reference.
 
 
