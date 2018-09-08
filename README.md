@@ -1,4 +1,4 @@
-[[//]: # (Image References)
+[//]: # (Image References)
 [image1]: ./RecordRunTrial.png
 
 # Autonomous Mars Rover Simulation Project
